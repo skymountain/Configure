@@ -59,7 +59,7 @@ sub execute_from_config {
   my $path = $self->config_file($dir);
 
   unless (-e $path) {
-    Configure::Print->error("$path not found");
+    Configure::Print->not_exists($path);
     return;
   }
 
