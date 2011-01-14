@@ -7,11 +7,13 @@ use base qw/Configure::Command/;
 
 use Configure::Command::Base::Subdir;
 use Configure::Command::Base::Symlink;
+use Configure::Command::Base::Prototype;
 
 sub new {
   bless {
     subdir  => Configure::Command::Base::Subdir->new('install'),
     symlink => Configure::Command::Base::Symlink->new,
+    prototype => Configure::Command::Base::Prototype->new,
   }, $_[0];
 }
 
