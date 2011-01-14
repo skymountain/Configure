@@ -7,6 +7,7 @@ use Path::Class;
 use FindBin;
 use lib file($FindBin::Bin)->parent->subdir('lib')->stringify;
 
+use File::Spec;
 use Configure::Command;
 use Configure::Print;
 
@@ -18,4 +19,4 @@ unless ($comm_name && $init_dir) {
   exit;
 }
 
-Configure::Command->new($comm_name)->execute_from_config($init_dir);
+Configure::Command->new($comm_name)->execute_from_config(File::Spec->rel2abs($init_dir));
