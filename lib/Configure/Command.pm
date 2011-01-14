@@ -57,7 +57,12 @@ sub execute {
 sub execute_from_config {
   my ($self, $dir) = @_;
   my $path = $self->config_file($dir);
-  
+
+  unless (-e $path) {
+    Configure::Print->error("$path not found");
+    return;
+  }
+
   my $comms = eval { LoadFile($path); };
   if ($@) {
     die "$@ at $path";
