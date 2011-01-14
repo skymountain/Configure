@@ -16,17 +16,11 @@ sub link {
   my $from = $args{from};
   my $to   = $args{to};
 
-  if (!(-e $from)) {
-    Configure::Print->skip("$from not exists");
-  }
-  elsif (-e $to) {
-    Configure::Print->skip("$to exists");
-  }
-  elsif (symlink $from, $to) {
-    Configure::Print->success("symlink: $from -> $to");
+  if (symlink $from, $to) {
+    Configure::Print->success("$from -> $to");
   }
   else {
-    Configure::Print->error("symlink error, $! at $dir");
+    Configure::Print->error("symlink error $from -> $to, $! at $dir");
   }
 }
 

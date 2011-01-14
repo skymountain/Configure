@@ -34,7 +34,16 @@ sub error {
 
 sub success {
   my ($class, $msg) = @_;
-  $class->p('success', $msg);
+  my ($module) = caller;
+
+  my @namespaces = split /::/, $module;
+  my $class_name = pop @namespaces;
+  $class->p('success', "\l$class_name: $msg");
+}
+
+sub not_exists {
+  my ($class, $file) = @_;
+  $class->error("$file not exists");
 }
 
 1;
