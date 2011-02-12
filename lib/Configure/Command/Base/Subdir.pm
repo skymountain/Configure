@@ -15,7 +15,7 @@ sub new {
 
 sub execute {
   my ($self, $dir, $subdirs) = @_;
-  my @abs_subdirs = Configure::Path->system_path($dir, @$subdirs);
+  my @abs_subdirs = Configure::Path->normalize_and_abs($dir, @$subdirs);
 
   Configure::Command->new($self->{command})->execute_from_config($_)
       foreach (@abs_subdirs);

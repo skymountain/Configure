@@ -16,7 +16,7 @@ sub link {
 sub execute {
   my ($self, $dir, $links) = @_;
   foreach my $link (@$links) {
-    my ($from, $to) = Configure::Path->system_path($dir, $link->{from}, $link->{to});
+    my ($from, $to) = Configure::Path->normalize_and_abs($dir, $link->{from}, $link->{to});
 
     if ($self->linkable($from, $to)) {
       $self->link(
