@@ -3,9 +3,9 @@ package Configure::Command::Base::Prototype;
 use strict;
 use warnings;
 
-use IO::File;
-
 use base qw/Configure::Command::Base::Link/;
+use IO::File;
+use Configure::Command::Response;
 
 sub link {
   my ($self, %args) = @_;
@@ -15,10 +15,10 @@ sub link {
   my $to   = $args{to};
   my $reps = $args{data}->{replace};
 
-  my $from_io = IO::File->new($from, 'r') or do {
-    Configure::Print->error("$from can't open for read");
-    return;
-  };
+  my $from_io = IO::File->new($from, 'r') or
+    return Configure::Command::Response->error(
+      "$from can't open for read",
+    );
 
   print "\n", "ask you what string in $from is replaced with ...\n";
   my %replaced;
@@ -35,16 +35,17 @@ sub link {
     push @lines, $line;
   }
 
-  my $to_io = IO::File->new($to, 'w') or do {
-    Configure::Print->error("$to can't open for write");
-    return;
-  };
+  my $to_io = IO::File->new($to, 'w') or
+    return Configure::Command::Response->error(
+      "$to can't open for write",
+    );
+
   $to_io->print(@lines);
 
   $from_io->close;
   $to_io->close;
 
-  Configure::Print->success("$from -> $to");
+  Configure::Command::Response->success("$from -> $to");
 }
 
 1;

@@ -5,6 +5,7 @@ use warnings;
 
 use feature qw/say/;
 use List::Util qw/reduce/;
+use Params::Validate;
 
 my %phrase_hash = do {
   my @phrase_list =
@@ -18,27 +19,22 @@ my %phrase_hash = do {
 };
 
 sub p {
-  my ($class, $phrase, $msg) = @_;
-  say "$phrase_hash{$phrase}$msg";
+  my ($class, $phrase, $msg, $comm_name) = @_;
+  say sprintf "$phrase_hash{$phrase}%s$msg", $comm_name ? "$comm_name: " : '';
 }
 
-sub skip {
-  my ($class, $msg) = @_;
-  $class->p('skip', $msg);
-}
+sub skip    { shift->p('skip',    @_) }
+sub error   { shift->p('error',   @_) }
+sub success { shift->p('success', @_) }
 
-sub error {
-  my ($class, $msg) = @_;
-  $class->p('error', $msg);
-}
+sub print_response {
+  my ($class, $res) = validate_pos(@_, 1, 1);
+  return unless $res;
 
-sub success {
-  my ($class, $msg) = @_;
-  my ($module) = caller;
-
-  my @namespaces = split /::/, $module;
-  my $class_name = pop @namespaces;
-  $class->p('success', "\l$class_name: $msg");
+  my $reason = delete $res->{reason} or return;
+  my $comm_name = delete $res->{command} or return;
+  my $result = $res->{result};
+  $class->$result($reason, $comm_name);
 }
 
 sub not_exists {

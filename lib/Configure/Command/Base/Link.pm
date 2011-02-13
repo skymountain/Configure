@@ -3,7 +3,9 @@ package Configure::Command::Base::Link;
 use strict;
 use warnings;
 
+use base qw/Configure::Command::Base::Sequence/;
 use Configure::Path;
+use Configure::Command::Response;
 
 sub new {
   bless {}, $_[0];
@@ -13,36 +15,34 @@ sub link {
   die "undef command";
 }
 
-sub execute {
-  my ($self, $dir, $links) = @_;
-  foreach my $link (@$links) {
-    my ($from, $to) = Configure::Path->normalize_and_abs($dir, $link->{from}, $link->{to});
+sub execute_one {
+  my ($self, $dir, $link) = @_;
+  my ($from, $to) = Configure::Path->normalize_and_abs($dir, $link->{from}, $link->{to});
 
-    if ($self->linkable($from, $to)) {
-      $self->link(
-        dir  => $dir,
-        from => $from,
-        to   => $to,
-        data => $link,
-      );
-    }
-  }
+  my $res = $self->linkable($from, $to);
+  return $res->is_success ? $self->link(
+    dir  => $dir,
+    from => $from,
+    to   => $to,
+    data => $link,
+  ) : $res;
 }
 
 sub linkable {
   my ($self, $from, $to) = @_;
 
   if (!(-e $from)) {
-    Configure::Print->not_exists($from);
+    return Configure::Command::Response->error(
+      "$from not exists",
+    );
   }
   elsif (-e $to || -l $to) {
-    Configure::Print->skip("$to exists");
-  }
-  else {
-    return 1;
+    return Configure::Command::Response->skip(
+      "$to exists",
+    );
   }
 
-  return;
+  return Configure::Command::Response->success;
 }
 
 1;

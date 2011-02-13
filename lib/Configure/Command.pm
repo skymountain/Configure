@@ -3,9 +3,11 @@ package Configure::Command;
 use strict;
 use warnings;
 
+use base qw/Configure::Command::Base/;
 use UNIVERSAL::require;
 use File::Spec;
 use YAML::XS qw/LoadFile/;
+use Configure::Command::Response;
 
 our $config_file = 'conf.yml';
 
@@ -46,7 +48,8 @@ sub execute {
 
   while (my ($k, $v) = each %$comms) {
     if (my $comm = $self->command_instance($k)) {
-      $comm->execute($dir, $v);
+      my $res = $comm->execute($dir, $v);
+      Configure::Print->print_response($res);
     }
     elsif (!$self->is_available($k)) {
       Configure::Print->error("$k is unknown command at $dir");
@@ -77,9 +80,12 @@ sub command_instance {
 
   if ($comm_name eq $self->{command}) {
     my $class_name = $self->class_of_command($comm_name);
-    if (my $module = __PACKAGE__->load($class_name)) {
-      return $module->new;
-    }
+    return if $class_name eq 'Base';
+
+    my $module = __PACKAGE__->load($class_name);
+    return $module &&
+           $module->isa(__PACKAGE__->load('Base')) &&
+           $module->new;
   }
 }
 
