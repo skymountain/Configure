@@ -29,10 +29,22 @@ sub link {
     );
 
   print "\n", "ask you what string in $from is replaced with ...\n";
+
   my %replaced;
-  foreach my $rep (@$reps) {
-    print "$rep: ";
-    chomp($replaced{$rep} = (<STDIN>));
+  {
+      my $continue = 1;
+      my $prev = $SIG{INT} || undef;
+      $SIG{INT} = sub { $continue = 0; die };
+      eval {
+          foreach my $rep (@$reps) {
+              last unless $continue;
+              print "$rep: \n";
+              chomp($replaced{$rep} = (<STDIN>));
+          }
+      };
+      $prev ? $SIG{INT} = $prev : delete $SIG{INT};
+      die $@ if $@ && $continue;
+      return Configure::Command::Response->skip("interrupted in $from") unless $continue;
   }
 
   my @lines;
