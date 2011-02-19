@@ -3,7 +3,6 @@ package Configure::Print;
 use strict;
 use warnings;
 
-use feature qw/say/;
 use List::Util qw/reduce/;
 use Params::Validate;
 
@@ -20,7 +19,7 @@ my %phrase_hash = do {
 
 sub p {
   my ($class, $phrase, $msg, $comm_name) = @_;
-  say sprintf "$phrase_hash{$phrase}%s$msg", $comm_name ? "$comm_name: " : '';
+  print sprintf "$phrase_hash{$phrase}%s$msg\n", $comm_name ? "$comm_name: " : '';
 }
 
 sub skip    { shift->p('skip',    @_) }
